@@ -23,36 +23,44 @@ def insertInputs(conn) :
     #Data from raw_input has to be formatted in this manner to be inserted in to the SQL commands. 
     #This input seems to be inserting the Age input as the ID as well. Whatever the age is assigned to, is also the ID. 
     #This might be because of the data type, which could cause issues with the real OMPS database, need to investigate. 
-    cur.execute("INSERT INTO test(id, name, age, address, salary) VALUES(%(int)s, %(str)s, %(int)s, %(char)s, %(real)s);",
-                {'int':insertID, 'str':insertName, 'int':insertAge, 'char':insertAddress, 'real':insertSalary})
+    # 12/21/17
+    #updated Age to smallInt, and now the ID and the Ages are unique. No longer seeing issue!
+    cur.execute("INSERT INTO test(id, name, age, address, salary) VALUES(%(int)s, %(str)s, %(smallint)s, %(char)s, %(real)s);",
+                {'int':insertID, 'str':insertName, 'smallint':insertAge, 'char':insertAddress, 'real':insertSalary})
 
 def deleteInputs(conn) :
 	cur = conn.cursor()
 	print("Let's delete a record! ")
-	deleteOption = raw_input("How do you want to delete a record? ID? Name? Age? Address? Salary? ")    
+	#deleteOption = raw_input("How do you want to delete a record? ID? Name? Age? Address? Salary? ")    
+	deleteYesNo = raw_input("Do you know the ID of the record you want to delete? Yes or No ")
 
-	if deleteOption == "ID":
+	#Age, Address, and Salary are not unique values, so theoretically someone could delete multiple entries by selecting one of these values. 
+	#For a delete operation, we either need to force the user to select from just ID, or ID+Another parameter. 
+
+	if deleteYesNo == "yes": 
 		deleteID = raw_input("What's the ID of the record you'd like to delete? ")
 		cur.execute("DELETE FROM test WHERE id=(%(int)s);",
                 {'int':deleteID})
-	elif deleteOption == "name":
-		deleteName = raw_input("What's the name of the record you'd like to delete? ")
-		cur.execute("DELETE FROM test WHERE name=(%(str)s);",
-                {'str':deleteName})
-	elif deleteOption == "age":
-		deleteAge = raw_input("What's the age of the record(s) you'd like to delete? ")
-		cur.execute("DELETE FROM test WHERE age=(%(int)s);",
-                {'int':deleteAge})
-	elif deleteOption == "address":
-		deleteAddress = raw_input("What's the address of the record(s) you'd like to delete? ")
-		cur.execute("DELETE FROM test WHERE address=(%(char)s);",
-                {'char':deleteAddress})
-	elif deleteOption == "salary":
-		deleteSalary = raw_input("What's the salary of the record(s) you'd like to delete? ")
-		cur.execute("DELETE FROM test WHERE salary=(%(real)s);",
-                {'real':deleteSalary})
-	else:
-		print("You didn't enter a valid option...")
+	elif deleteYesNo == "no":
+		print(doQuery(myConnect))
+		deleteID = raw_input("Select the ID from the above list: ")
+		deleteParameter = raw_input("Select the name, age, address, or salary of the record you'd like to delete? Enter one: ")
+		if deleteParameter == "name":
+			deleteName = raw_input("Enter the name: ")
+			cur.execute("DELETE FROM test WHERE id=(%(int)s) AND name=(%(str)s);",
+				{'int':deleteID, 'str':deleteName})
+		elif deleteParameter == "age":
+			deleteAge = raw_input("Enter the age: ")
+			cur.execute("DELETE FROM test WHERE id=(%(int)s) AND age=(%(smallint)s);",
+				{'int':deleteID, 'smallint':deleteAge})
+		elif deleteParameter =="address":
+			deleteAddress = raw_input("Enter the address: ")
+			cur.execute("DELETE FROM test WHERE id=(%(int)s) AND address=(%(char)s);",
+				{'int':deleteID, 'char':deleteAddress})
+		elif deleteParameter == "salary":
+			deleteSalary = raw_input("Enter the salary: ")
+			cur.execute("DELETE FROM test WHERE id=(%(int)s) AND salary=(%(real)s);",
+				{'int':deleteID, 'real':deleteSalary})
 
 def doQuery (conn) :
 	cur = conn.cursor()
