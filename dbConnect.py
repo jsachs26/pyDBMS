@@ -67,10 +67,13 @@ def selectQuery(conn):
 	selectTable = raw_input("Which table? ")
 	selectColumn = raw_input("Which column? ")
 
-	selectSQL = "SELECT (%s) FROM (%s);"
-	cur.execute(selectSQL, selectTable)
+	cur.execute("""
+		SELECT 'some_column' FROM 'some_table'
+		VALUES(%s, %s);
+		""",
+		(selectColumn, selectTable))
 
-def updateQuery(conn):
+#def updateQuery(conn):
 	#TODO
 
 def doQuery (conn) :
@@ -98,6 +101,6 @@ else:
 
 print("-------------------------------------------------")
 doQuery(myConnect)
-#selectQuery(myConnect)
+selectQuery(myConnect)
 myConnect.commit()
 myConnect.close()
