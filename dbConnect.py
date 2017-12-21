@@ -61,6 +61,17 @@ def deleteInputs(conn) :
 			deleteSalary = raw_input("Enter the salary: ")
 			cur.execute("DELETE FROM test WHERE id=(%(int)s) AND salary=(%(real)s);",
 				{'int':deleteID, 'real':deleteSalary})
+def selectQuery(conn):
+	cur = conn.cursor()
+	print("SELECT SOMETHING from the database!!")
+	selectTable = raw_input("Which table? ")
+	selectColumn = raw_input("Which column? ")
+
+	selectSQL = "SELECT (%s) FROM (%s);"
+	cur.execute(selectSQL, selectTable)
+
+def updateQuery(conn):
+	#TODO
 
 def doQuery (conn) :
 	cur = conn.cursor()
@@ -87,5 +98,6 @@ else:
 
 print("-------------------------------------------------")
 doQuery(myConnect)
+#selectQuery(myConnect)
 myConnect.commit()
 myConnect.close()
