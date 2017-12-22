@@ -4,6 +4,7 @@
 # Testing how to access and maniuplate data
 #!/usr/bin/python
 import psycopg2
+import psycopg2.extras
 
 #port can be declared but defaults to 5432 if not provided. 
 hostname = 'localhost'
@@ -61,22 +62,33 @@ def deleteInputs(conn) :
 			deleteSalary = raw_input("Enter the salary: ")
 			cur.execute("DELETE FROM test WHERE id=(%(int)s) AND salary=(%(real)s);",
 				{'int':deleteID, 'real':deleteSalary})
-def selectQuery(conn):
+
+
+def updateQuery(conn):
+	
 	cur = conn.cursor()
-	print("SELECT SOMETHING from the database!!")
-	selectTable = raw_input("Which table? ")
-	selectColumn = raw_input("Which column? ")
+	updateID = raw_input("What's the ID of the record to update? ")
+	updateField = raw_input("Update name? age? address? salary? ")
 
-	cur.execute("""
-		SELECT 'some_column' FROM 'some_table'
-		VALUES(%s, %s);
-		""",
-		(selectColumn, selectTable))
+	if updateField == "name":
+		updateName = raw_input("Update the name to? ")
+		cur.execute("UPDATE test SET Name=(%(str)s) WHERE ID=(%(int)s);",
+		{'str':updateName, 'int':updateID})
+	elif updateField == "age":
+		updateAge = raw_input("Update age to? ")
+		cur.execute("UPDATE test SET Age=(%(smallint)s) WHERE ID=(%(int)s);",
+		{'smallint':updateAge, 'int':updateID})
+	elif updateField == "address":
+		updateAddress = raw_input("Where do they live? ")
+		cur.execute("UPDATE test SET Address=(%(str)s) WHERE ID=(%(int)s);",
+		{'str':updateAddress, 'int':updateID})
+	elif updateField == "salary":
+		updateSalary = raw_input("How much they make? ")
+		cur.execute
 
-#def updateQuery(conn):
-	#TODO
 
-def doQuery (conn) :
+
+def selectQuery (conn):
 	cur = conn.cursor()
 	cur.execute("SELECT id, name, age, address, salary FROM test" )
 
@@ -87,20 +99,21 @@ def doQuery (conn) :
 myConnect = psycopg2.connect(host=hostname, user=username, password=password, database=database)
 
 #Prompt the user to decided what's gonna happen to the Database
-queryOp = raw_input("Would you like to delete? insert? list? ")
+queryOp = raw_input("Would you like to delete? insert? list? update? ")
 
 if queryOp == "delete":
 	deleteInputs(myConnect)
 elif queryOp == "insert":
 	insertInputs(myConnect)
 elif queryOp == "list":
-	doQuery(myConnect)
+	selectQuery(myConnect)
+elif queryOp == "update":
+	updateQuery(myConnect)
 else:
 	print("please provide a valid input...")
 
 
 print("-------------------------------------------------")
-doQuery(myConnect)
 selectQuery(myConnect)
 myConnect.commit()
 myConnect.close()
